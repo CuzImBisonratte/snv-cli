@@ -224,5 +224,24 @@ async function main() {
     showBanner();
     await promptURL();
     await login();
+    // Main loop
+    while (true) {
+        // Get user input
+        const response = await prompts({
+            type: "select",
+            name: "action",
+            message: "What do you want to do?",
+            choices: [
+                { title: "Show File Manager", value: "filemanager" },
+                { title: "Show More Information", value: "info" },
+                { title: "Exit", value: "exit" }
+            ]
+        });
+        switch (response.action) {
+            case "info":
+                await showInfo();
+                break;
+        }
+    }
 }
 main();
