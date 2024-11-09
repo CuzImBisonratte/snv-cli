@@ -22,7 +22,8 @@ function showBanner() {
     console.log("│" + (" ".repeat(78)) + "│");
     console.log("│" + (" ".repeat(32)) + "\x1b[33m\x1b[1mSNV CLI v0.1.0\x1b[0m" + (" ".repeat(32)) + "│");
     console.log("│" + (" ".repeat(78)) + "│");
-    console.log("│" + (" ".repeat(14)) + "\x1b[31mSNV CLI is not affiliated with the SNV Web Portal.\x1b[0m" + (" ".repeat(14)) + "│");
+    console.log("│" + (" ".repeat(14)) + "\x1b[31mSNV CLI is not affiliated with SchulNetzVerwalter.\x1b[0m" + (" ".repeat(14)) + "│");
+    console.log("│" + (" ".repeat(17)) + "\x1b[31mThis is free software. Use at your own risk.\x1b[0m" + (" ".repeat(17)) + "│");
     console.log("│" + (" ".repeat(78)) + "│");
     console.log("└" + ("─".repeat(78)) + "┘");
     console.log("\n");
@@ -74,6 +75,18 @@ async function querySNV(params) {
     }
 }
 
+// Check if SNV Web Portal is reachable
+async function checkSNV() {
+    try {
+        await axios.get("https://" + config.snvURL + "/snvmodules?method=checksession").then((response) => {
+            if (response.headers.method && response.headers.method == 'checksession') return 1;
+            return 0;
+        });
+    } catch (error) {
+        return 0;
+    }
+}
+
 /* --------------------- */
 /* -- Main  Functions -- */
 /* --------------------- */
@@ -94,8 +107,24 @@ async function promptURL() {
             config.snvURL = response.snvURL;
         })();
     }
-    // Get school info
-    await schoolInfo();
+    // Check if URL is valid
+    await checkSNV()
+        .then(async (data) => {
+            if (data == 0) {
+                userOutput("SNV Web Portal is not reachable. Please check the URL.", "error");
+                config.snvURL = "";
+                await promptURL();
+                return;
+            } else {
+                // Show school name
+                await querySNV({
+                    method: 'checksession'
+                }).then((data) => {
+                    const [plz, ...ort] = data.lnplzort.split("-");
+                    userOutput("School found: " + data.lnname + ", " + ort.join("-"), "success");
+                });
+            }
+        });
 }
 
 // Login
@@ -143,16 +172,6 @@ async function login() {
             else if (element.includes("SNVWebPortalSessionID")) cookie.SNVWebPortalSessionID = element.split(";")[0].split("=")[1];
         });
         userOutput("Logged in as: " + config.username, "success");
-    });
-}
-
-// School info
-async function schoolInfo() {
-    await querySNV({
-        method: 'checksession'
-    }).then((data) => {
-        const [plz, ...ort] = data.lnplzort.split("-");
-        userOutput("School found: " + data.lnname + ", " + ort.join("-"), "success");
     });
 }
 
