@@ -5,12 +5,12 @@ const axios = require("axios");
 const prompts = require("prompts");
 var config = JSON.parse(fs.readFileSync(path.join(__dirname, "config.json"), "utf-8"));
 
-// Set up cookie storage
-var cookie = {
-    sessionid: "",
+// Set up persistent storages
+var COOKIES = {
     SNVWebPortalSessionID: "",
     HASH_SNVWebPortalSessionID: ""
 };
+var SESSION_ID = "";
 
 /* --------------------- */
 /* - Helper  Functions - */
@@ -53,8 +53,8 @@ function userOutput(message, type = "info") {
 // Format cookie
 function formatCookie() {
     var cookieString = "";
-    for (var key in cookie) {
-        cookieString += key + "=" + cookie[key] + ";";
+    for (var key in COOKIES) {
+        cookieString += key + "=" + COOKIES[key] + ";";
     }
     return cookieString;
 }
@@ -165,11 +165,11 @@ async function login() {
             await login();
             return;
         }
-        cookie.sessionid = data.sessionid;
+        SESSION_ID = data.sessionid;
         var cookieString = data["set-cookie"];
         cookieString.forEach((element) => {
-            if (element.includes("HASH_SNVWebPortalSessionID")) cookie.HASH_SNVWebPortalSessionID = element.split(";")[0].split("=")[1];
-            else if (element.includes("SNVWebPortalSessionID")) cookie.SNVWebPortalSessionID = element.split(";")[0].split("=")[1];
+            if (element.includes("HASH_SNVWebPortalSessionID")) COOKIES.HASH_SNVWebPortalSessionID = element.split(";")[0].split("=")[1];
+            else if (element.includes("SNVWebPortalSessionID")) COOKIES.SNVWebPortalSessionID = element.split(";")[0].split("=")[1];
         });
         userOutput("Logged in as: " + config.username, "success");
     });
