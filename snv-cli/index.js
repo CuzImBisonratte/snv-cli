@@ -199,8 +199,6 @@ async function logout() {
         else userOutput("Logout failed. Forcing program to end without closing the session!", "error");
     });
     userOutput("Thank you for using SNV CLI. Goodbye!", "info");
-    console.log("\n");
-    showBanner();
 }
 
 // Show more information
@@ -235,6 +233,7 @@ async function main() {
             process.exit(130);
         }
     });
+    console.clear();
     showBanner();
     await promptURL();
     await login();
@@ -252,7 +251,8 @@ async function main() {
                 { title: "Exit", value: "exit" }
             ]
         });
-        console.log("");
+        console.clear();
+        showBanner();
         switch (response.action) {
             case "info":
                 await showInfo();
