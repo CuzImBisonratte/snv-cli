@@ -7,7 +7,7 @@ Example Responses are provided for each action, with notes on what to expect.
 ## Responses
 
 Every response, failing or successful, will report the HTTP status code `200 OK`.
-In general most actions will return nothing in the body but will return the following headers:
+In general most actions will return nothing in the body (except for `getdirectoryentry`) but will return the following headers:
 
 ```HTTP
 method: METHOD-USED
@@ -120,3 +120,48 @@ Interesting fields are:
 -   page\* fields: These fields are likely used to determine which pages are available to the user
 -   CurrentLocationText: The name of the room the user is currently in
 -   isTeacher: Whether the user is a teacher or not
+
+# DirectoryEntry
+
+This action is used to get information about a file directory
+
+```
+/snvmodules?method=getdirectoryentry&sessionid=SESSIONID&path=%2Fsnvcloud%2F&sortoption=
+```
+
+### Parameters
+
+-   method: getdirectoryentry
+-   sessionid: Your session ID
+-   path: The path to the directory you want to get information about (URL encoded - Root is /snvcloud/ (can also be / but default is /snvcloud/))
+-   sortoption: If left empty, the response will be sorted by name ascending. Other options I found are:
+    -   `dd` - Sort by date descending
+    -   `da` - Sort by date ascending
+
+### Response
+
+The response contains a JSON object with the following structure:
+
+```JSON
+{
+	"rows": [
+		{
+			"name": "Home",
+			"url": "/snvcloud/Home/",
+			"icon": "folder",
+			"type": 0,
+			"lastmodified": "",
+			"size": ""
+		},
+		{
+			"name": "Tausch",
+			"url": "/snvcloud/Tausch/",
+			"icon": "folder",
+			"type": 0,
+			"lastmodified": "",
+			"size": ""
+		}
+	]
+}
+
+```
