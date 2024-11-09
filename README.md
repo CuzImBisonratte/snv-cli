@@ -5,7 +5,7 @@
   />
 </a>
 
-# SNV-WebPortal-Reverse-Engineering
+# SNV-cli
 
 This repository contains a collection of resources I wrote whilst reverse engineering the SNV-WebPortal, a web application used by many german schools to manage student data.
 
