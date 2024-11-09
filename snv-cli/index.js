@@ -74,15 +74,6 @@ async function querySNV(params) {
     }
 }
 
-async function schoolInfo() {
-    await querySNV({
-        method: 'checksession'
-    }).then((data) => {
-        const [plz, ...ort] = data.lnplzort.split("-");
-        userOutput("School found: " + data.lnname + ", " + ort.join("-"), "success");
-    });
-}
-
 /* --------------------- */
 /* -- Main  Functions -- */
 /* --------------------- */
@@ -152,6 +143,16 @@ async function login() {
             else if (element.includes("SNVWebPortalSessionID")) cookie.SNVWebPortalSessionID = element.split(";")[0].split("=")[1];
         });
         userOutput("Logged in as: " + config.username, "success");
+    });
+}
+
+// School info
+async function schoolInfo() {
+    await querySNV({
+        method: 'checksession'
+    }).then((data) => {
+        const [plz, ...ort] = data.lnplzort.split("-");
+        userOutput("School found: " + data.lnname + ", " + ort.join("-"), "success");
     });
 }
 
