@@ -46,6 +46,11 @@ function userOutput(message, type = "info") {
     console.log(icon + "\x1b[0m " + message);
 }
 
+// HTML special characters to text
+function htmlDecode(input) {
+    return input.replace(/&amp;/g, '&').replace(/&szlig;/g, 'ß').replace(/&ouml;/g, 'ö').replace(/&auml;/g, 'ä').replace(/&uuml;/g, 'ü').replace(/&Auml;/g, 'Ä').replace(/&Ouml;/g, 'Ö').replace(/&Uuml;/g, 'Ü');
+}
+
 /* --------------------- */
 /* - SNV-API Functions - */
 /* --------------------- */
@@ -116,12 +121,16 @@ async function promptURL() {
                 await promptURL();
                 return;
             } else {
-                // Show school name
                 await querySNV({
                     method: 'checksession'
                 }).then((data) => {
+                    // Show school name
                     const [plz, ...ort] = data.lnplzort.split("-");
                     userOutput("School found: " + data.lnname + ", " + ort.join("-"), "success");
+                    // Save school name
+                    SESSION_INFO.schoolname = data.lnname;
+                    SESSION_INFO.schoollocation = data.lnplzort;
+                    SESSION_INFO.schoolstreet = htmlDecode(data.lnstrasse);
                 });
             }
         });
@@ -172,6 +181,29 @@ async function login() {
             else if (element.includes("SNVWebPortalSessionID")) COOKIES.SNVWebPortalSessionID = element.split(";")[0].split("=")[1];
         });
         userOutput("Logged in as: " + config.username, "success");
+    });
+}
+
+// Show more information
+async function showInfo() {
+    await querySNV({
+        method: 'customstoredproc',
+        sessionid: SESSION_ID,
+        procname: 'sp_webservices_GetRoomAllocationInfo'
+    }).then((data) => {
+        for (var key in data) { data[key] = htmlDecode(data[key]); }
+        console.log("\n");
+        if (data.schule) userOutput("School Custom Name: " + data.schule);
+        userOutput("School Name: " + SESSION_INFO.schoolname);
+        userOutput("School Location: " + SESSION_INFO.schoollocation);
+        userOutput("School Street: " + SESSION_INFO.schoolstreet);
+        if (data.room) userOutput("The room you are in: " + data.room);
+        if (data.wsid) userOutput("You are working from Workspace: " + data.wsid);
+        if (data.groupassignedtoroom) userOutput("Group assigned to your room: " + data.groupassignedtoroom);
+        if (data.account) userOutput("Your account: " + data.account);
+        if (data.isteacher) userOutput("Are you a teacher: " + data.isteacher);
+        if (data.internalip) userOutput("Are you using an internal IP: " + data.internalip);
+        console.log("\n");
     });
 }
 
