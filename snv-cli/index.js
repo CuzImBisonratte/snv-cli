@@ -189,6 +189,20 @@ async function login() {
     });
 }
 
+// Logout
+async function logout() {
+    await querySNV({
+        method: 'logout',
+        sessionid: SESSION_ID
+    }).then((data) => {
+        if (data.resultcode == 100) userOutput("Logged out successfully.", "success");
+        else userOutput("Logout failed. Forcing program to end without closing the session!", "error");
+    });
+    userOutput("Thank you for using SNV CLI. Goodbye!", "info");
+    console.log("\n");
+    showBanner();
+}
+
 // Show more information
 async function showInfo() {
     await querySNV({
@@ -227,6 +241,7 @@ async function main() {
     // Main loop
     while (true) {
         // Get user input
+        console.log("");
         const response = await prompts({
             type: "select",
             name: "action",
@@ -237,10 +252,14 @@ async function main() {
                 { title: "Exit", value: "exit" }
             ]
         });
+        console.log("");
         switch (response.action) {
             case "info":
                 await showInfo();
                 break;
+            case "exit":
+                await logout();
+                process.exit(0);
         }
     }
 }
