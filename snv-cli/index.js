@@ -11,6 +11,11 @@ var COOKIES = {
     HASH_SNVWebPortalSessionID: ""
 };
 var SESSION_ID = "";
+var SESSION_INFO = {
+    schoolname: "",
+    schoollocation: "",
+    schoolstreet: ""
+};
 
 /* --------------------- */
 /* - Helper  Functions - */
