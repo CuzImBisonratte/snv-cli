@@ -177,6 +177,13 @@ async function login() {
 
 // Main function
 async function main() {
+    // This is needed to catch CTRL+C (see https://github.com/terkelg/prompts/issues/252#issuecomment-2424555811)
+    process.stdin.on("keypress", function (_chunk, key) {
+        if (key && key.name === "c" && key.ctrl) {
+            process.stdout.write("\x1B[?25h\n");
+            process.exit(130);
+        }
+    });
     showBanner();
     await promptURL();
     await login();
