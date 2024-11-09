@@ -56,6 +56,18 @@ function htmlDecode(input) {
     return input.replace(/&amp;/g, '&').replace(/&szlig;/g, 'ß').replace(/&ouml;/g, 'ö').replace(/&auml;/g, 'ä').replace(/&uuml;/g, 'ü').replace(/&Auml;/g, 'Ä').replace(/&Ouml;/g, 'Ö').replace(/&Uuml;/g, 'Ü');
 }
 
+// Fileurl encoder
+function fileUrlEncode(str) {
+    return str
+        .replace(/ü/g, "*uuml;")
+        .replace(/ö/g, "*ouml;")
+        .replace(/ä/g, "*auml;")
+        .replace(/Ü/g, "*Uuml;")
+        .replace(/Ö/g, "*Ouml;")
+        .replace(/Ä/g, "*Auml;")
+        .replace(/ß/g, "*szlig;");
+}
+
 /* --------------------- */
 /* - SNV-API Functions - */
 /* --------------------- */
@@ -224,6 +236,44 @@ async function showInfo() {
     });
 }
 
+// Filemanager
+async function filemanager() {
+    currentpath = "/snvcloud/";
+    // Loop
+    while (true) {
+        // Get user input
+        console.log("Current Path: " + currentpath.replace("/snvcloud", "") + "\n");
+        // Get current directory
+        dirEntries = [];
+        await querySNV({
+            method: 'getdirectoryentry',
+            sessionid: SESSION_ID,
+            path: currentpath
+        }, true).then((data) => { dirEntries = data.data.rows; });
+        // Format options
+        options = [];
+        if (currentpath != "/snvcloud/") options.push({ title: "../", value: path.join(currentpath, "../") });
+        for (const entry of dirEntries) options.push({ title: entry.type ? entry.name : entry.name + "/", value: fileUrlEncode(entry.url) });
+        options[options.length - 1].title = options[options.length - 1].title + "\n";
+        const response = await prompts({
+            type: "select",
+            name: "action",
+            message: "",
+            choices: [...options, { title: "Exit File Manager", value: "back" }]
+        });
+        console.clear();
+        showBanner();
+        if (response.action == "back") {
+            break;
+        };
+        if (response.action.endsWith("/")) {
+            currentpath = response.action;
+        }
+
+
+    }
+}
+
 // Main function
 async function main() {
     // This is needed to catch CTRL+C (see https://github.com/terkelg/prompts/issues/252#issuecomment-2424555811)
@@ -254,6 +304,9 @@ async function main() {
         console.clear();
         showBanner();
         switch (response.action) {
+            case "filemanager":
+                await filemanager(); // Filemanager is such a big feature that it has its own function 
+                break;
             case "info":
                 await showInfo();
                 break;
