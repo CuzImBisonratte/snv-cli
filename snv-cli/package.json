@@ -1,0 +1,23 @@
+{
+  "name": "snv-cli",
+  "version": "1.0.0",
+  "description": "CLI-Wrapper for SNV-WebPortal",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cuzimbisonratte/webSNV-RE.git"
+  },
+  "author": "Konstantin Protzen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cuzimbisonratte/webSNV-RE/issues"
+  },
+  "homepage": "https://github.com/cuzimbisonratte/webSNV-RE#readme",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "prompts": "^2.4.2"
+  }
+}

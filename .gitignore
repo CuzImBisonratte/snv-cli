@@ -1,0 +1,4 @@
+# SNV CLI Project gigignore
+snv-cli/config.json
+snv-cli/node_modules
+snv-cli/package-lock.json
