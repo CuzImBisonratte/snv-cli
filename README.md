@@ -1,3 +1,10 @@
+<a href="https://gitmoji.dev">
+  <img
+    src="https://img.shields.io/badge/Commits%20use%20gitmoji-%20😜%20😍-FFDD67.svg?style=for-the-badge"
+    alt="Gitmoji"
+  />
+</a>
+
 # SNV-WebPortal-Reverse-Engineering
 
 This repository contains a collection of resources I wrote whilst reverse engineering the SNV-WebPortal, a web application used by many german schools to manage student data.
