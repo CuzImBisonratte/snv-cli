@@ -70,7 +70,7 @@ function formatCookie() {
 }
 
 // Query the SNV Web Portal
-async function querySNV(params) {
+async function querySNV(params, rawResponse = false) {
     const options = {
         method: 'GET',
         url: "https://" + config.snvURL + "/snvmodules",
@@ -79,7 +79,7 @@ async function querySNV(params) {
     };
     try {
         const response = await axios.request(options);
-        return response.headers;
+        return rawResponse ? response : response.headers;
     } catch (error) {
         console.error(error);
     }
