@@ -6,6 +6,11 @@ The applications main use is to provide students with access to the data on the 
 
 The use of this repository is to provide a easy to use reference for developers who want to interact with SNV web applications and for myself to write a cli wrapper for it.
 
+```diff
+- I am not affiliated with SNV.
+- Use the information from this repository at your own risk.
+```
+
 ## Table of Contents
 
 -   actions.md: A list of all actions i reverse engineered from the web application.
