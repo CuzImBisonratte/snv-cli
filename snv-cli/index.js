@@ -28,19 +28,6 @@ function showBanner() {
     console.log("\n");
 }
 
-/* --------------------- */
-/* - SNV-API Functions - */
-/* --------------------- */
-
-// Format cookie
-function formatCookie() {
-    var cookieString = "";
-    for (var key in cookie) {
-        cookieString += key + "=" + cookie[key] + ";";
-    }
-    return cookieString;
-}
-
 // User output
 function userOutput(message, type = "info") {
     const icon = (() => {
@@ -56,6 +43,19 @@ function userOutput(message, type = "info") {
         }
     })();
     console.log(icon + "\x1b[0m " + message);
+}
+
+/* --------------------- */
+/* - SNV-API Functions - */
+/* --------------------- */
+
+// Format cookie
+function formatCookie() {
+    var cookieString = "";
+    for (var key in cookie) {
+        cookieString += key + "=" + cookie[key] + ";";
+    }
+    return cookieString;
 }
 
 // Query the SNV Web Portal
