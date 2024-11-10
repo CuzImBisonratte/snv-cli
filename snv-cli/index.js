@@ -280,6 +280,7 @@ async function filemanager() {
                 message: "What do you want to do?",
                 choices: [
                     { title: "Rename/Move", value: "rename" },
+                    { title: "Delete", value: "delete" },
                     { title: "New Folder\n", value: "folder" },
                     { title: "Exit", value: "exit" }
                 ]
@@ -307,6 +308,26 @@ async function filemanager() {
                     });
                     currentpath = fileUrlEncode(newpath);
                     console.log("");
+                    continue;
+                case "delete":
+                    const deleteResponse = await prompts({
+                        type: "confirm",
+                        name: "action",
+                        message: "Are you sure you want to delete this folder?"
+                    });
+                    if (deleteResponse.action) {
+                        console.clear();
+                        showBanner();
+                        await querySNV({
+                            method: 'delete',
+                            sessionid: SESSION_ID,
+                            path: fileUrlEncode(currentpath)
+                        }).then((data) => {
+                            if (data.commandresponseno.startsWith("2")) userOutput("Folder deleted successfully.", "success");
+                            else userOutput("Folder deletion failed.", "error");
+                        });
+                        currentpath = path.join(currentpath, "../");
+                    }
                     continue;
                 case "folder":
                     const folderResponse = await prompts({
