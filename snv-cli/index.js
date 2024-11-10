@@ -80,6 +80,37 @@ function fileUrlDecode(str) {
         .replace(/\*szlig;/g, "ß");
 }
 
+// Choose file
+async function chooseFile() {
+    var fileChosen = false;
+    var currentPath = process.cwd();
+    while (!fileChosen) {
+        const files = fs.readdirSync(currentPath);
+        const options = [{ title: "../", value: path.join(currentPath, "../") }];
+        console.clear();
+        showBanner();
+        console.log("Current Path: " + currentPath + "\n");
+        for (const file of files) {
+            if (file.startsWith(".")) continue;
+            if (!fs.existsSync(path.join(currentPath, file))) continue;
+            const stats = fs.statSync(path.join(currentPath, file));
+            options.push({ title: stats.isDirectory() ? file + "/" : file, value: path.join(currentPath, file) });
+        }
+        const response = await prompts({
+            type: "select",
+            name: "action",
+            message: "Choose a file",
+            initial: 1,
+            choices: options
+        });
+        if (fs.statSync(response.action).isDirectory()) {
+            currentPath = response.action;
+        } else {
+            return response.action;
+        }
+    }
+}
+
 /* --------------------- */
 /* - SNV-API Functions - */
 /* --------------------- */
@@ -149,6 +180,22 @@ async function downloadFromSNV(snvPath) {
     return downloadPath;
 }
 
+// Upload to SNV
+async function uploadToSNV(file, snvPath) {
+    const content = fs.readFileSync(file);
+    const contentLength = content.length;
+    const options = {
+        method: 'PUT',
+        url: "https://" + config.snvURL + snvPath.replace(/ /g, "%20"),
+        headers: {
+            'Cookie': formatCookie() + " uploadurl=/snvcloud/Home/Test/test2/; seqid=; uploadfilename=;",
+            'Content-Length': contentLength,
+            'Content-Type': 'application/octet-stream'
+        },
+        data: content
+    };
+    await axios.request(options);
+}
 
 /* --------------------- */
 /* -- Main  Functions -- */
@@ -310,6 +357,7 @@ async function filemanager() {
                 choices: [
                     { title: "Rename/Move", value: "rename" },
                     { title: "Delete", value: "delete" },
+                    { title: "Upload file", value: "upload" },
                     { title: "New Folder\n", value: "folder" },
                     { title: "Exit", value: "exit" }
                 ]
@@ -357,6 +405,14 @@ async function filemanager() {
                         });
                         currentpath = path.join(currentpath, "../");
                     }
+                    continue;
+                case "upload":
+                    var localFile = await chooseFile();
+                    var uploadPath = currentpath + path.basename(localFile);
+                    await uploadToSNV(localFile, uploadPath);
+                    console.clear();
+                    showBanner();
+                    userOutput("File uploaded successfully.", "success");
                     continue;
                 case "folder":
                     const folderResponse = await prompts({
@@ -415,6 +471,7 @@ async function filemanager() {
         }
     }
 }
+
 // Main function
 async function main() {
     // This is needed to catch CTRL+C (see https://github.com/terkelg/prompts/issues/252#issuecomment-2424555811)
