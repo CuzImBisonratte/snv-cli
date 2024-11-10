@@ -383,7 +383,7 @@ async function filemanager() {
         console.clear();
         showBanner();
         if (response.action == "back") {
-            break;
+            return;
         };
         if (response.action.endsWith("/")) {
             currentpath = response.action;
