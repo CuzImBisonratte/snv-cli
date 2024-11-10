@@ -68,6 +68,18 @@ function fileUrlEncode(str) {
         .replace(/ß/g, "*szlig;");
 }
 
+// Fileurl decoder
+function fileUrlDecode(str) {
+    return str
+        .replace(/\*uuml;/g, "ü")
+        .replace(/\*ouml;/g, "ö")
+        .replace(/\*auml;/g, "ä")
+        .replace(/\*Uuml;/g, "Ü")
+        .replace(/\*Ouml;/g, "Ö")
+        .replace(/\*Auml;/g, "Ä")
+        .replace(/\*szlig;/g, "ß");
+}
+
 /* --------------------- */
 /* - SNV-API Functions - */
 /* --------------------- */
@@ -242,7 +254,7 @@ async function filemanager() {
     // Loop
     while (true) {
         // Get user input
-        console.log("Current Path: " + currentpath.replace("/snvcloud", "") + "\n");
+        console.log("Current Path: " + fileUrlDecode(currentpath).replace("/snvcloud", "") + "\n");
         // Get current directory
         dirEntries = [];
         await querySNV({
