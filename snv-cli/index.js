@@ -377,6 +377,11 @@ async function filemanager() {
                         else userOutput("Folder creation failed.", "error");
                     });
                     continue;
+                case "exit":
+                    console.clear();
+                    showBanner();
+                    continue;
+
             }
             continue;
         }
