@@ -459,6 +459,7 @@ async function filemanager() {
             choices: [
                 { title: "Download", value: "download" },
                 { title: "Rename/Move", value: "rename" },
+                { title: "Delete\n", value: "delete" },
                 { title: "Exit", value: "exit" }
             ]
         });
@@ -491,6 +492,25 @@ async function filemanager() {
                     else userOutput("File rename/move failed.", "error");
                 });
                 break;
+            case "delete":
+                console.log("Current Path: " + fileUrlDecode(response.action).replace("/snvcloud", "") + "\n");
+                const deleteResponse = await prompts({
+                    type: "confirm",
+                    name: "action",
+                    message: "Are you sure you want to delete this file?"
+                });
+                console.clear();
+                showBanner();
+                if (deleteResponse.action) {
+                    await querySNV({
+                        method: 'delete',
+                        sessionid: SESSION_ID,
+                        path: fileUrlEncode(response.action)
+                    }).then((data) => {
+                        if (data.commandresponseno.startsWith("2")) userOutput("File deleted successfully.\n", "success");
+                        else userOutput("File deletion failed.", "error");
+                    });
+                }
         }
     }
 }
