@@ -271,8 +271,64 @@ async function filemanager() {
             type: "select",
             name: "action",
             message: "",
-            choices: [...options, { title: "Exit File Manager", value: "back" }]
+            choices: [...options, { title: "More options", value: "actions" }, { title: "Exit File Manager", value: "back" }]
         });
+        if (response.action == "actions") {
+            const actionResponse = await prompts({
+                type: "select",
+                name: "action",
+                message: "What do you want to do?",
+                choices: [
+                    { title: "Rename/Move", value: "rename" },
+                    { title: "New Folder\n", value: "folder" },
+                    { title: "Exit", value: "exit" }
+                ]
+            });
+            switch (actionResponse.action) {
+                case "rename":
+                    const renameResponse = await prompts({
+                        type: "text",
+                        name: "action",
+                        message: "Enter the FULL new name/path of the folder",
+                        validate: value => value.startsWith("/") ? true : "Path must start with '/'"
+                    });
+                    var oldpath = fileUrlEncode(currentpath);
+                    var newpath = "/snvcloud" + renameResponse.action.replace("/snvcloud", "");
+                    console.clear();
+                    showBanner();
+                    await querySNV({
+                        method: 'move',
+                        sessionid: SESSION_ID,
+                        path: oldpath,
+                        newpath: newpath
+                    }).then((data) => {
+                        if (data.commandresponseno.startsWith("2")) userOutput("Folder renamed/moved successfully.", "success");
+                        else userOutput("Folder rename/move failed.", "error");
+                    });
+                    currentpath = fileUrlEncode(newpath);
+                    console.log("");
+                    continue;
+                case "folder":
+                    const folderResponse = await prompts({
+                        type: "text",
+                        name: "action",
+                        message: "Enter the name of the new folder",
+                        validate: value => /^[^<>:"/\\|?*\x00-\x1F]+$/.test(value) ? true : "Invalid folder name"
+                    });
+                    var folder_path = currentpath + fileUrlEncode(folderResponse.action);
+                    console.clear();
+                    showBanner();
+                    await querySNV({
+                        method: 'mkcol',
+                        sessionid: SESSION_ID,
+                        path: folder_path
+                    }).then((data) => {
+                        if (data.commandresponseno.startsWith("2")) userOutput("Folder created successfully.", "success");
+                        else userOutput("Folder creation failed.", "error");
+                    });
+                    continue;
+            }
+        }
         console.clear();
         showBanner();
         if (response.action == "back") {
@@ -280,12 +336,10 @@ async function filemanager() {
         };
         if (response.action.endsWith("/")) {
             currentpath = response.action;
+            continue;
         }
-
-
     }
 }
-
 // Main function
 async function main() {
     // This is needed to catch CTRL+C (see https://github.com/terkelg/prompts/issues/252#issuecomment-2424555811)
