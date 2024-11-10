@@ -1,6 +1,9 @@
 # Actions List
 
 All actions lie under the `https://SNVURL/snvmodules` URL.
+
+The only "actions" not laying under this URL are file up- and downloads, which are described in the [File Actions](fileactions.md) document.
+
 Parameters are passed as query parameters.
 Example Responses are provided for each action, with notes on what to expect.
 
