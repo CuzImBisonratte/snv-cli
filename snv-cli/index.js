@@ -521,6 +521,7 @@ async function main() {
     process.stdin.on("keypress", function (_chunk, key) {
         if (key && key.name === "c" && key.ctrl) {
             process.stdout.write("\x1B[?25h\n");
+            console.clear();
             showBanner();
             userOutput("Exiting on user request.", "info");
             process.exit(130);
