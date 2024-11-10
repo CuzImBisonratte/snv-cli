@@ -24,3 +24,30 @@ The use of this repository is to provide a easy to use reference for developers 
 -   README.md: This file.
 
 In the snv-cli folder you will find a nodejs wrapper for the web application I wrote to check wheter the actions I reverse engineered are correct and to provide a easier way to interact with the web application.
+
+# Installation
+
+Put the snv-cli folder anywhere on your system and run `npm install` in the folder.  
+Add a `config.json` file to the folder with the following content:
+
+```json
+{
+	"snvURL": "",
+	"username": "",
+	"password": ""
+}
+```
+
+Replace the values with your own credentials if you want to store them.
+
+# Usage
+
+To use the cli run `node index.js` in the snv-cli folder.
+
+## Bash-Alias
+
+To make the cli easier to start you can add the following aliases to your .bash_aliases (Tested on Ubuntu 22+):
+
+```bash
+alias snv="node /path/to/snv-cli/index.js"
+```
