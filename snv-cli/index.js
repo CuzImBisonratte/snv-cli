@@ -349,6 +349,7 @@ async function filemanager() {
                     });
                     continue;
             }
+            continue;
         }
         console.clear();
         showBanner();
