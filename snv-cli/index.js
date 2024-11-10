@@ -121,6 +121,35 @@ async function checkSNV() {
     }
 }
 
+// Download from SNV
+async function downloadFromSNV(snvPath) {
+    const options = {
+        method: 'GET',
+        url: "https://" + config.snvURL + snvPath,
+        headers: { Cookie: formatCookie() },
+        params: { sessionid: SESSION_ID },
+        responseType: 'stream'
+    };
+    const response = await axios.request(options);
+    const filename = snvPath.split("/").pop();
+    const downloadPath = path.join(process.cwd(), filename);
+    const writer = fs.createWriteStream(downloadPath);
+    await new Promise((resolve, reject) => {
+        response.data.pipe(writer);
+        let error = null;
+        writer.on('error', err => {
+            error = err;
+            writer.close();
+            reject(err);
+        });
+        writer.on('close', () => {
+            if (!error) resolve();
+        });
+    });
+    return downloadPath;
+}
+
+
 /* --------------------- */
 /* -- Main  Functions -- */
 /* --------------------- */
@@ -359,6 +388,25 @@ async function filemanager() {
         if (response.action.endsWith("/")) {
             currentpath = response.action;
             continue;
+        }
+        console.log("Current File: " + fileUrlDecode(response.action).replace("/snvcloud", "") + "\n");
+        // Handle file menu
+        const actionResponse = await prompts({
+            type: "select",
+            name: "action",
+            message: "What do you want to do?",
+            choices: [
+                { title: "Download", value: "download" },
+                { title: "Exit", value: "exit" }
+            ]
+        });
+        console.clear();
+        showBanner();
+        switch (actionResponse.action) {
+            case "download":
+                var dl_path = await downloadFromSNV(response.action);
+                userOutput("File downloaded successfully to \x1b[36m" + dl_path + "\x1b[0m\n", "success");
+                break;
         }
     }
 }
