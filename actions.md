@@ -168,3 +168,16 @@ The response contains a JSON object with the following structure:
 }
 
 ```
+
+# Move
+
+```
+/snvmodules?method=move&sessionid=SESSIONID&path=/snvcloud/Home/olditem/&newpath=/snvcloud/Home/newpath
+```
+
+### Parameters
+
+-   method: move
+-   sessionid: Your session ID
+-   path: The path to the item you want to move (Path encoded)
+-   newpath: The new path for the item (PATH NOT ENCODED)
