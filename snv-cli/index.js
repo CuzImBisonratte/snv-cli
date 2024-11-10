@@ -380,7 +380,7 @@ async function filemanager() {
                         path: oldpath,
                         newpath: newpath
                     }).then((data) => {
-                        if (data.commandresponseno.startsWith("2")) userOutput("Folder renamed/moved successfully.", "success");
+                        if (data.commandresponseno.startsWith("2")) userOutput("Folder renamed/moved successfully.\n", "success");
                         else userOutput("Folder rename/move failed.", "error");
                     });
                     currentpath = fileUrlEncode(newpath);
@@ -400,7 +400,7 @@ async function filemanager() {
                             sessionid: SESSION_ID,
                             path: fileUrlEncode(currentpath)
                         }).then((data) => {
-                            if (data.commandresponseno.startsWith("2")) userOutput("Folder deleted successfully.", "success");
+                            if (data.commandresponseno.startsWith("2")) userOutput("Folder deleted successfully.\n", "success");
                             else userOutput("Folder deletion failed.", "error");
                         });
                         currentpath = path.join(currentpath, "../");
@@ -429,7 +429,7 @@ async function filemanager() {
                         sessionid: SESSION_ID,
                         path: folder_path
                     }).then((data) => {
-                        if (data.commandresponseno.startsWith("2")) userOutput("Folder created successfully.", "success");
+                        if (data.commandresponseno.startsWith("2")) userOutput("Folder created successfully.\n", "success");
                         else userOutput("Folder creation failed.", "error");
                     });
                     continue;
