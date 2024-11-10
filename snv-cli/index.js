@@ -458,6 +458,7 @@ async function filemanager() {
             message: "What do you want to do?",
             choices: [
                 { title: "Download", value: "download" },
+                { title: "Rename/Move", value: "rename" },
                 { title: "Exit", value: "exit" }
             ]
         });
@@ -467,6 +468,28 @@ async function filemanager() {
             case "download":
                 var dl_path = await downloadFromSNV(response.action);
                 userOutput("File downloaded successfully to \x1b[36m" + dl_path + "\x1b[0m\n", "success");
+                break;
+            case "rename":
+                console.log("Current Path: " + fileUrlDecode(response.action).replace("/snvcloud", "") + "\n");
+                const renameResponse = await prompts({
+                    type: "text",
+                    name: "action",
+                    message: "Enter the FULL new name/path of the file",
+                    validate: value => value.startsWith("/") ? true : "Path must start with '/'"
+                });
+                var oldpath = fileUrlEncode(response.action);
+                var newpath = "/snvcloud" + renameResponse.action.replace("/snvcloud", "");
+                console.clear();
+                showBanner();
+                await querySNV({
+                    method: 'move',
+                    sessionid: SESSION_ID,
+                    path: oldpath,
+                    newpath: newpath
+                }).then((data) => {
+                    if (data.commandresponseno.startsWith("2")) userOutput("File renamed/moved successfully.\n", "success");
+                    else userOutput("File rename/move failed.", "error");
+                });
                 break;
         }
     }
