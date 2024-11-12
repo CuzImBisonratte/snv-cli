@@ -350,6 +350,12 @@ async function filemanager() {
             choices: [...options, { title: "More options", value: "actions" }, { title: "Exit File Manager", value: "back" }]
         });
         if (response.action == "actions") {
+            if (currentpath == "/snvcloud/") {
+                console.clear();
+                showBanner();
+                userOutput("You cannot perform actions on the root directory.\n", "warning");
+                continue;
+            }
             const actionResponse = await prompts({
                 type: "select",
                 name: "action",
