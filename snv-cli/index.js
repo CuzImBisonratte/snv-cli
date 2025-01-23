@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
 const prompts = require("prompts");
+const progressBar = require('progress');
 var config = JSON.parse(fs.readFileSync(path.join(__dirname, "config.json"), "utf-8"));
 
 // Set up persistent storages
@@ -25,7 +26,7 @@ var SESSION_INFO = {
 function showBanner() {
     console.log("┌" + ("─".repeat(78)) + "┐");
     console.log("│" + (" ".repeat(78)) + "│");
-    console.log("│" + (" ".repeat(32)) + "\x1b[33m\x1b[1mSNV CLI v0.1.0\x1b[0m" + (" ".repeat(32)) + "│");
+    console.log("│" + (" ".repeat(32)) + "\x1b[33m\x1b[1mSNV CLI v0.1.1\x1b[0m" + (" ".repeat(32)) + "│");
     console.log("│" + (" ".repeat(78)) + "│");
     console.log("│" + (" ".repeat(14)) + "\x1b[31mSNV CLI is not affiliated with SchulNetzVerwalter.\x1b[0m" + (" ".repeat(14)) + "│");
     console.log("│" + (" ".repeat(17)) + "\x1b[31mThis is free software. Use at your own risk.\x1b[0m" + (" ".repeat(17)) + "│");
@@ -111,6 +112,29 @@ async function chooseFile() {
     }
 }
 
+async function createFolderStructure(tree, currentPath) {
+    for (const key in tree) {
+        if (typeof tree[key] == "object") {
+            fs.mkdirSync(path.join(currentPath, key));
+            await createFolderStructure(tree[key], path.join(currentPath, key));
+        }
+    }
+}
+
+function getFiles(tree) {
+    var files = [];
+    for (const key in tree) {
+        if (typeof tree[key] == "object") {
+            files.push(...getFiles(tree[key]));
+        } else {
+            files.push(tree[key]);
+        }
+    }
+    for (const key in files) if (files[key].endsWith("/")) files.splice(key, 1);
+    return files;
+}
+
+
 /* --------------------- */
 /* - SNV-API Functions - */
 /* --------------------- */
@@ -195,6 +219,41 @@ async function uploadToSNV(file, snvPath) {
         data: content
     };
     await axios.request(options);
+}
+
+async function queryDirTree(path = "/snvcloud/") {
+    var tree = {};
+    await querySNV({
+        method: 'getdirectoryentry',
+        sessionid: SESSION_ID,
+        path: fileUrlEncode(path)
+    }, true).then(async (data) => {
+        process.stdout.clearLine();
+        process.stdout.cursorTo(0);
+        process.stdout.write("Currently processing directory: " + path);
+        for (const entry of data.data.rows) {
+            if (entry.url.endsWith("/") && !config.backup_exclude.includes(entry.name)) {
+                subTree = await queryDirTree(entry.url);
+                tree[entry.name] = subTree;
+            } else {
+                tree[entry.name] = entry.url;
+            }
+        }
+    });
+    // Wait 0.5 seconds (this is per directory depth, so it is not doing too much overhead)
+    await new Promise(resolve => setTimeout(resolve, 250));
+    return tree;
+}
+
+async function downloadBackupFiles(files, currentPath) {
+    const bar = new progressBar('Downloading file :current/:total (:percent) [:bar] :etas remaining', { total: files.length });
+    // Download files
+    for (const file of files) {
+        const downloadPath = await downloadFromSNV(file);
+        fs.renameSync(downloadPath, path.join(currentPath, file.replace("/snvcloud", "")));
+        bar.tick();
+    }
+    bar.terminate();
 }
 
 /* --------------------- */
@@ -515,6 +574,50 @@ async function filemanager() {
     }
 }
 
+// Backup
+async function backup() {
+    userOutput("This feature, as it is right now, can't be used for restoring files. It should only be used for downloading all your files to a local directory.\n", "warning");
+    const backupPathQ = await prompts({
+        type: "text",
+        name: "action",
+        message: "Enter the path where you want to save the backup. A folder for it will be created.",
+        initial: process.cwd(),
+        validate: value => fs.existsSync(value) ? true : "Path does not exist"
+    });
+    let backupPath = path.join(backupPathQ.action + "/", "SNV-Backup_" + config.username + "_" + new Date().toISOString().split("T")[0]);
+    console.clear();
+    showBanner();
+    if (fs.existsSync(backupPath)) { // Check if path exists, if so abort
+        userOutput("Path already exists. Aborting backup.", "error");
+        userOutput("If you want to create a new backup, please delete " + backupPath + "!\n", "info");
+        userOutput("Tip: I do recommend, not to use this method repeatedly, as it is resource intensive for both, the SNV-Server as well as your device.", "info");
+        return;
+    }
+    userOutput("Creating backup at " + backupPath + "\n", "info");
+    // Check if path exists
+    const response = await prompts({
+        type: "confirm",
+        name: "action",
+        message: "Are you sure you want to create a backup of all your files to this location?"
+    });
+    if (!response.action) return;
+    fs.mkdirSync(backupPath); // Create backup folder    
+    console.clear();
+    showBanner();
+    userOutput("Backup started. Please wait, this may take a while.\n", "info");
+    const DL_dirs = await queryDirTree(); // Get all directories
+    await createFolderStructure(DL_dirs, backupPath); // Create folder structure
+    const DL_files = getFiles(DL_dirs); // Get all files
+    console.clear();
+    showBanner();
+    userOutput("Downloading files, please wait...\n", "info");
+    userOutput("The download may seem still sometimes, don't worry, just wait.\n", "info");
+    await downloadBackupFiles(DL_files, backupPath); // Download all files
+    console.clear();
+    showBanner();
+    userOutput("Backup completed successfully.\n", "success");
+}
+
 // Main function
 async function main() {
     // This is needed to catch CTRL+C (see https://github.com/terkelg/prompts/issues/252#issuecomment-2424555811)
@@ -541,6 +644,7 @@ async function main() {
             message: "What do you want to do?",
             choices: [
                 { title: "Show File Manager", value: "filemanager" },
+                { title: "Create a backup", value: "backup" },
                 { title: "Show More Information", value: "info" },
                 { title: "Exit", value: "exit" }
             ]
@@ -550,6 +654,9 @@ async function main() {
         switch (response.action) {
             case "filemanager":
                 await filemanager(); // Filemanager is such a big feature that it has its own function 
+                break;
+            case "backup":
+                await backup();
                 break;
             case "info":
                 await showInfo();
