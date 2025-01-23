@@ -34,11 +34,14 @@ Add a `config.json` file to the folder with the following content:
 {
 	"snvURL": "",
 	"username": "",
-	"password": ""
+	"password": "",
+	"backup_exclude": [".git", ".node_modules", ""]
 }
 ```
 
 Replace the values with your own credentials if you want to store them.
+
+The `backup_exclude` array is used to exclude files from the backup command. Its used to exclude big folders with many files that are not needed for backups, but would slow down and result in many requests to the server.
 
 # Usage
 
