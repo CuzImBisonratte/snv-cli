@@ -34,7 +34,7 @@ var SESSION_INFO = {
 function showBanner() {
     console.log("┌" + ("─".repeat(78)) + "┐");
     console.log("│" + (" ".repeat(78)) + "│");
-    console.log("│" + (" ".repeat(32)) + "\x1b[33m\x1b[1mSNV CLI v0.1.1\x1b[0m" + (" ".repeat(32)) + "│");
+    console.log("│" + (" ".repeat(32)) + "\x1b[33m\x1b[1mSNV CLI v0.1.2\x1b[0m" + (" ".repeat(32)) + "│");
     console.log("│" + (" ".repeat(78)) + "│");
     console.log("│" + (" ".repeat(14)) + "\x1b[31mSNV CLI is not affiliated with SchulNetzVerwalter.\x1b[0m" + (" ".repeat(14)) + "│");
     console.log("│" + (" ".repeat(17)) + "\x1b[31mThis is free software. Use at your own risk.\x1b[0m" + (" ".repeat(17)) + "│");
