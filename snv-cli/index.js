@@ -12,6 +12,7 @@ if (!fs.existsSync(path.join(__dirname, "config.json")))
         JSON.stringify({ username: "", password: "", snvURL: "", backup_exclude: [] }, null, 4)
     );
 var config = JSON.parse(fs.readFileSync(path.join(__dirname, "config.json"), "utf-8"));
+const configfile = JSON.parse(JSON.stringify(config)); // Store raw config file for later comparison
 
 // Set up persistent storages
 var COOKIES = {
@@ -353,6 +354,20 @@ async function login() {
         });
         userOutput("Logged in as: " + config.username, "success");
     });
+    // Check if user credentials are already saved
+    if (JSON.stringify(configfile) != JSON.stringify(config)) {
+        await (async () => {
+            const response = await prompts({
+                type: "confirm",
+                name: "save",
+                message: "Do you want to save these credentials for future use?"
+            });
+            if (response.save) {
+                fs.writeFileSync(path.join(__dirname, "config.json"), JSON.stringify(config, null, 4));
+                userOutput("Credentials saved successfully.", "success");
+            }
+        })();
+    }
 }
 
 // Logout
