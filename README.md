@@ -27,21 +27,20 @@ In the snv-cli folder you will find a nodejs wrapper for the web application I w
 
 # Installation
 
-Put the snv-cli folder anywhere on your system and run `npm install` in the folder.  
-Add a `config.json` file to the folder with the following content:
+Put the snv-cli folder anywhere on your system and run `npm install` in the folder.
 
-```json
-{
-	"snvURL": "",
-	"username": "",
-	"password": "",
-	"backup_exclude": [".git", ".node_modules", ""]
-}
-```
+# Configuration
 
-Replace the values with your own credentials if you want to store them.
+A default configuration file will be generated when you run the cli for the first time.
 
-The `backup_exclude` array is used to exclude files from the backup command. Its used to exclude big folders with many files that are not needed for backups, but would slow down and result in many requests to the server.
+It contains the following changable values:
+
+| Name           | Description                                          | Default                   |
+| -------------- | ---------------------------------------------------- | ------------------------- |
+| username       | The username you use to login to the web application | ""                        |
+| password       | The password you use to login to the web application | ""                        |
+| snvURL         | The url of the snv web application                   | "https://snv.example.com" |
+| backup_exclude | A list of actions to exclude from the backup command | []                        |
 
 # Usage
 
