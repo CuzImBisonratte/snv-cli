@@ -4,6 +4,13 @@ const path = require("path");
 const axios = require("axios");
 const prompts = require("prompts");
 const progressBar = require('progress');
+
+// Create file if it doesn't exists
+if (!fs.existsSync(path.join(__dirname, "config.json")))
+    fs.writeFileSync(
+        path.join(__dirname, "config.json"),
+        JSON.stringify({ username: "", password: "", snvURL: "", backup_exclude: [] }, null, 4)
+    );
 var config = JSON.parse(fs.readFileSync(path.join(__dirname, "config.json"), "utf-8"));
 
 // Set up persistent storages
